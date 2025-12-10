@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\AddressController;
 
 // Rotas públicas
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // Rotas protegidas
 Route::middleware('auth:sanctum')->group(function () {
