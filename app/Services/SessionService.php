@@ -38,14 +38,20 @@ class SessionService
                 }
             }
 
-            if (!empty($schedules)) {
+            if (!empty($data['appointments'])) {
+                $appointments = $data['appointments'];
+            } elseif (!empty($schedules)) {
                 $appointments = $this->generateAppointments(
                     $session,
                     $schedules,
                     $data['start_date'],
                     $data['total_appointments']
                 );
+            } else {
+                $appointments = [];
+            }
 
+            if (!empty($appointments)) {
                 foreach ($appointments as $appointmentData) {
                     Appointment::create([
                         'patient_id' => $session->patient_id,

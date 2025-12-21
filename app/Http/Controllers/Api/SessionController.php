@@ -53,6 +53,10 @@ class SessionController extends Controller
             'schedules' => 'required|array|min:1',
             'schedules.*.day_of_week' => 'required|in:Segunda-feira,Terça-feira,Quarta-feira,Quinta-feira,Sexta-feira,Sábado,Domingo',
             'schedules.*.time' => 'required|date_format:H:i',
+
+            'appointments' => 'sometimes|array',
+            'appointments.*.date' => 'required_with:appointments|date',
+            'appointments.*.time' => 'required_with:appointments|date_format:H:i',
         ], [
             'schedules.required' => 'É necessário definir pelo menos um horário fixo.',
             'schedules.min' => 'É necessário definir pelo menos um horário fixo.',
