@@ -120,6 +120,24 @@ class AppointmentController extends Controller
             'status' => 'Realizado',
         ]);
 
-        return response()->json($appointment);
+        return response()->json($appointment->load(['patient', 'sessionSchedule']));
+    }
+
+    public function execute(Request $request, Appointment $appointment)
+    {
+        if ($appointment->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Não autorizado'], 403);
+        }
+
+        $validated = $request->validate([
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'session_notes' => 'nullable|string',
+            'status' => 'required|in:Confirmado,Realizado',
+        ]);
+
+        $appointment->update($validated);
+
+        return response()->json($appointment->load(['patient', 'sessionSchedule']));
     }
 }

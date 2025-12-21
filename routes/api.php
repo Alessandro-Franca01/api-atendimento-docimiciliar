@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('appointments', AppointmentController::class);
     Route::post('/appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn']);
     Route::post('/appointments/{appointment}/check-out', [AppointmentController::class, 'checkOut']);
+    Route::post('/appointments/{appointment}/execute', [AppointmentController::class, 'execute']);
 
     // Sessions
     Route::apiResource('sessions', SessionController::class);
