@@ -38,6 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Sessions
     Route::apiResource('sessions', SessionController::class);
+    Route::post('/sessions/preview-appointments', [SessionController::class, 'previewAppointments']);
+    Route::post('/sessions/{session}/cancel', [SessionController::class, 'cancel']);
+    Route::get('/sessions/{session}/upcoming', [SessionController::class, 'upcomingAppointments']);
+    Route::get('/sessions/{session}/statistics', [SessionController::class, 'statistics']);
 
     // Payments
     Route::apiResource('payments', PaymentController::class);
