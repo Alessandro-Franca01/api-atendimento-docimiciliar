@@ -39,8 +39,8 @@ class PaymentController extends Controller
             'session_id' => 'nullable|exists:sessions,id',
             'amount' => 'required|numeric|min:0',
             'payment_date' => 'required|date',
-            'payment_method' => 'required|in:Pix,Dinheiro,Cartão,Transferência',
-            'status' => 'nullable|in:Pago,Pendente,Atrasado,Cancelado',
+            'payment_method' => 'required|in:Pix,Dinheiro,Cartao,Debito,Gratuito',
+            'status' => 'nullable|in:Pago,Pendente,Atrasado,Cancelado,Acao_Social',
             'due_date' => 'nullable|date',
             'notes' => 'nullable|string',
         ]);
@@ -71,8 +71,8 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'amount' => 'sometimes|numeric|min:0',
             'payment_date' => 'sometimes|date',
-            'payment_method' => 'sometimes|in:Pix,Dinheiro,Cartão,Transferência',
-            'status' => 'sometimes|in:Pago,Pendente,Atrasado,Cancelado',
+            'payment_method' => 'sometimes|in:Pix,Dinheiro,Cartao,Debito,Gratuito',
+            'status' => 'sometimes|in:Pago,Pendente,Atrasado,Cancelado,Acao_Social',
             'due_date' => 'sometimes|date',
             'notes' => 'nullable|string',
         ]);
