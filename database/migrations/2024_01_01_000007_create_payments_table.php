@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('session_id')->nullable()->constrained()->onDelete('set null');
             $table->decimal('amount', 10, 2);
             $table->date('payment_date');
-            $table->enum('payment_method', ['Pix', 'Dinheiro', 'Cartão', 'Transferência'])->default('Pix');
-            $table->enum('status', ['Pago', 'Pendente', 'Atrasado', 'Cancelado'])->default('Pendente');
+            $table->enum('payment_method', ['Pix', 'Dinheiro', 'Cartao', 'Debito', 'Gratuito'])->default('Pix');
+            $table->enum('status', ['Pago', 'Pendente', 'Atrasado', 'Cancelado', 'Acao_Social'])->default('Pendente');
             $table->date('due_date')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
