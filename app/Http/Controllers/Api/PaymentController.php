@@ -26,9 +26,16 @@ class PaymentController extends Controller
             $query->whereBetween('payment_date', [$request->start_date, $request->end_date]);
         }
 
-        $payments = $query->latest('payment_date')->paginate(15);
+        $totalCollected = $query->clone()->where('status', 'Pago')->sum('amount');
+        $totalPending = $query->clone()->where('status', 'Pendente')->sum('amount');
+        
+        $payments = $query->latest('payment_date')->paginate(10);
 
-        return response()->json($payments);
+        $responseData = $payments->toArray();
+        $responseData['total_collected'] = $totalCollected;
+        $responseData['total_pending'] = $totalPending;
+
+        return response()->json($responseData);
     }
 
     public function store(Request $request)

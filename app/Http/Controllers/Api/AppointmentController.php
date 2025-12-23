@@ -25,6 +25,14 @@ class AppointmentController extends Controller
             $query->where('patient_id', $request->patient_id);
         }
 
+        if ($request->has('session_id')) {
+            $query->where('session_id', $request->session_id);
+        }
+
+        if ($request->has('sessionIsNull')) {
+            $query->whereNull('session_id');
+        }
+
         if ($request->has('start_date') && $request->has('end_date')) {
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
         }
