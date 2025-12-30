@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
             'neighborhood' => 'Centro',
             'city' => 'São Paulo',
             'state' => 'SP',
-            'zip_code' => '01234-567',
+            'cep' => '01234-567',
             'is_primary' => true,
         ]);
 

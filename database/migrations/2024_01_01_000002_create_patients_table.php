@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone');
             $table->string('cpf')->unique()->nullable();
+            $table->string('rg', 12)->nullable();
             $table->date('birth_date')->nullable();
             $table->integer('age')->nullable();
             $table->text('avatar')->nullable();
