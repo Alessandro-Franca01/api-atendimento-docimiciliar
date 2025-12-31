@@ -25,6 +25,7 @@ class Patient extends Model
         'status',
         'notes',
         'gender',
+        'occupation',
     ];
 
     protected $casts = [

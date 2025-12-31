@@ -45,6 +45,7 @@ class PatientController extends Controller
             'status' => 'nullable|in:Ativo,Inativo',
             'notes' => 'nullable|string',
             'gender' => 'nullable|string',
+            'occupation' => 'nullable|string',
             'addresses' => 'nullable|array',
         ]);
 
@@ -98,6 +99,7 @@ class PatientController extends Controller
             'status' => 'sometimes|in:Ativo,Inativo',
             'notes' => 'sometimes|string',
             'gender' => 'sometimes|string',
+            'occupation' => 'sometimes|string',
         ]);
 
         $patient->update($validated);
