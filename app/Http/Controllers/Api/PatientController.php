@@ -14,7 +14,11 @@ class PatientController extends Controller
             ->with(['addresses', 'sessions', 'payments']);
 
         if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('cpf', 'like', '%' . $request->search . '%')
+                  ->orWhere('rg', 'like', '%' . $request->search . '%');
+            });
         }
 
         if ($request->has('status')) {
@@ -28,7 +32,6 @@ class PatientController extends Controller
 
     public function store(Request $request)
     {
-//        dd($request->all());
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|unique:patients,email',
@@ -41,6 +44,7 @@ class PatientController extends Controller
             'emergency_contact_phone' => 'nullable|string',
             'status' => 'nullable|in:Ativo,Inativo',
             'notes' => 'nullable|string',
+            'gender' => 'nullable|string',
             'addresses' => 'nullable|array',
         ]);
 
@@ -93,6 +97,7 @@ class PatientController extends Controller
             'emergency_contact_phone' => 'sometimes|string',
             'status' => 'sometimes|in:Ativo,Inativo',
             'notes' => 'sometimes|string',
+            'gender' => 'sometimes|string',
         ]);
 
         $patient->update($validated);

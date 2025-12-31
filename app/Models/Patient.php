@@ -24,6 +24,7 @@ class Patient extends Model
         'emergency_contact_phone',
         'status',
         'notes',
+        'gender',
     ];
 
     protected $casts = [

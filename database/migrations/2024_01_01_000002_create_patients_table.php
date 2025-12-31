@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('rg', 12)->nullable();
             $table->date('birth_date')->nullable();
             $table->integer('age')->nullable();
+            $table->string('gender')->nullable();
             $table->text('avatar')->nullable();
             $table->string('emergency_contact_name')->nullable();
             $table->string('emergency_contact_phone')->nullable();
