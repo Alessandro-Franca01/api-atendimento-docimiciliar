@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('neighborhood');
             $table->string('city');
             $table->string('state', 2);
-            $table->string('zip_code', 10);
+            $table->string('cep', 10);
             $table->boolean('is_primary')->default(false);
             $table->timestamps();
         });

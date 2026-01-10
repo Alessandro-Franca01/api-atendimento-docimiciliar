@@ -18,7 +18,7 @@ class Address extends Model
         'neighborhood',
         'city',
         'state',
-        'zip_code',
+        'cep',
         'is_primary',
     ];
 

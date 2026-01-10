@@ -16,6 +16,7 @@ class Patient extends Model
         'email',
         'phone',
         'cpf',
+        'rg',
         'birth_date',
         'age',
         'avatar',
@@ -23,6 +24,8 @@ class Patient extends Model
         'emergency_contact_phone',
         'status',
         'notes',
+        'gender',
+        'occupation',
     ];
 
     protected $casts = [

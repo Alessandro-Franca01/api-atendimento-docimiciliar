@@ -14,7 +14,11 @@ class PatientController extends Controller
             ->with(['addresses', 'sessions', 'payments']);
 
         if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('cpf', 'like', '%' . $request->search . '%')
+                  ->orWhere('rg', 'like', '%' . $request->search . '%');
+            });
         }
 
         if ($request->has('status')) {
@@ -33,12 +37,15 @@ class PatientController extends Controller
             'email' => 'nullable|email|unique:patients,email',
             'phone' => 'required|string',
             'cpf' => 'nullable|string|unique:patients,cpf',
+            'rg' => 'nullable|string',
             'birth_date' => 'nullable|date',
             'age' => 'nullable|integer',
             'emergency_contact_name' => 'nullable|string',
             'emergency_contact_phone' => 'nullable|string',
             'status' => 'nullable|in:Ativo,Inativo',
             'notes' => 'nullable|string',
+            'gender' => 'nullable|string',
+            'occupation' => 'nullable|string',
             'addresses' => 'nullable|array',
         ]);
 
@@ -84,12 +91,15 @@ class PatientController extends Controller
             'email' => 'sometimes|email|unique:patients,email,' . $patient->id,
             'phone' => 'sometimes|string',
             'cpf' => 'sometimes|string|unique:patients,cpf,' . $patient->id,
+            'rg' => 'sometimes|string',
             'birth_date' => 'sometimes|date',
             'age' => 'sometimes|integer',
             'emergency_contact_name' => 'sometimes|string',
             'emergency_contact_phone' => 'sometimes|string',
             'status' => 'sometimes|in:Ativo,Inativo',
             'notes' => 'sometimes|string',
+            'gender' => 'sometimes|string',
+            'occupation' => 'sometimes|string',
         ]);
 
         $patient->update($validated);

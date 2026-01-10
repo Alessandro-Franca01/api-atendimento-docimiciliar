@@ -23,7 +23,7 @@ class AddressController extends Controller
             'neighborhood' => 'required|string',
             'city' => 'required|string',
             'state' => 'required|string|size:2',
-            'zip_code' => 'required|string',
+            'cep' => 'required|string',
             'is_primary' => 'nullable|boolean',
         ]);
 
@@ -50,7 +50,7 @@ class AddressController extends Controller
             'neighborhood' => 'sometimes|string',
             'city' => 'sometimes|string',
             'state' => 'sometimes|string|size:2',
-            'zip_code' => 'sometimes|string',
+            'cep' => 'sometimes|string',
             'is_primary' => 'nullable|boolean',
         ]);
 
