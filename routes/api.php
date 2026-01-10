@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\SessionController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\AddressController;
+use App\Http\Controllers\Api\ClinicController;
 
 // Rotas públicas
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -45,4 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Payments
     Route::apiResource('payments', PaymentController::class);
+
+    // Clinics
+    Route::apiResource('clinics', ClinicController::class);
 });
