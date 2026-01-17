@@ -44,16 +44,32 @@ class AppointmentController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
-            'session_id' => 'nullable|exists:sessions,id',
-            'date' => 'required|date',
-            'scheduled_time' => 'required',
-            'type' => 'required|in:Fisioterapia,Pilates,Avaliação,Reabilitação,Outro',
-            'status' => 'nullable|in:Pendente,Confirmado,Realizado,Cancelado,Faltou',
-            'observations' => 'nullable|string',
-        ]);
-
+        if($request->input('category') === 'clinic') {
+            $validated = $request->validate([
+                'patient_id' => 'required|exists:patients,id',
+                'session_id' => 'nullable|exists:sessions,id',
+                'date' => 'required|date',
+                'scheduled_time' => 'required',
+                'type' => 'required|in:Fisioterapia,Pilates,Avaliação,Reabilitação,Outro',
+                'status' => 'nullable|in:Pendente,Confirmado,Realizado,Cancelado,Faltou',
+                'observations' => 'nullable|string',
+                'category' => 'nullable|in:private,clinic',
+                'room' => 'nullable|in:no_room,room1,room2,room3,room4',
+                'health_plan_id' => 'nullable|exists:health_plans,id',
+            ]);
+        } elseif ($request->input('category') === 'private') {
+            $validated = $request->validate([
+                'patient_id' => 'required|exists:patients,id',
+                'session_id' => 'nullable|exists:sessions,id',
+                'date' => 'required|date',
+                'scheduled_time' => 'required',
+                'type' => 'required|in:Fisioterapia,Pilates,Avaliação,Reabilitação,Outro',
+                'status' => 'nullable|in:Pendente,Confirmado,Realizado,Cancelado,Faltou',
+                'observations' => 'nullable|string',
+                'category' => 'nullable|in:private,clinic',
+            ]);
+        }
+        
         $validated['user_id'] = $request->user()->id;
 
         $appointment = Appointment::create($validated);
@@ -67,7 +83,7 @@ class AppointmentController extends Controller
             return response()->json(['message' => 'Não autorizado'], 403);
         }
 
-        return response()->json($appointment->load(['patient', 'session', 'payment']));
+        return response()->json($appointment->load(['patient', 'session', 'payment', 'healthPlan']));
     }
 
     public function update(Request $request, Appointment $appointment)
@@ -85,6 +101,9 @@ class AppointmentController extends Controller
             'status' => 'sometimes|in:Pendente,Confirmado,Realizado,Cancelado,Faltou',
             'observations' => 'nullable|string',
             'session_notes' => 'nullable|string',
+            'session_notes' => 'nullable|string',
+            'category' => 'nullable|in:private,clinic',
+            'health_plan_id' => 'nullable|exists:health_plans,id',
         ]);
 
         $appointment->update($validated);
