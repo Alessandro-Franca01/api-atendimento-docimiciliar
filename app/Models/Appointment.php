@@ -23,6 +23,9 @@ class Appointment extends Model
         'observations',
         'session_notes',
         'attachments',
+        'category',
+        'health_plan_id',
+        'room',
     ];
 
     protected $casts = [
@@ -43,6 +46,11 @@ class Appointment extends Model
     public function session()
     {
         return $this->belongsTo(Session::class);
+    }
+
+    public function healthPlan()
+    {
+        return $this->belongsTo(HealthPlan::class);
     }
 
     public function payment()

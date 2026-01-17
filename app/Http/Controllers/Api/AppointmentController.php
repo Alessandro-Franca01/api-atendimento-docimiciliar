@@ -52,6 +52,8 @@ class AppointmentController extends Controller
             'type' => 'required|in:Fisioterapia,Pilates,Avaliação,Reabilitação,Outro',
             'status' => 'nullable|in:Pendente,Confirmado,Realizado,Cancelado,Faltou',
             'observations' => 'nullable|string',
+            'category' => 'nullable|in:private,clinic',
+            'room' => 'nullable|in:no_room,room1,room2,room3,room4',
         ]);
 
         $validated['user_id'] = $request->user()->id;
@@ -85,6 +87,7 @@ class AppointmentController extends Controller
             'status' => 'sometimes|in:Pendente,Confirmado,Realizado,Cancelado,Faltou',
             'observations' => 'nullable|string',
             'session_notes' => 'nullable|string',
+            'category' => 'nullable|in:private,clinic',
         ]);
 
         $appointment->update($validated);

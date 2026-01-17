@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\ClinicController;
+use App\Http\Controllers\Api\HealthPlanController;
 
 // Rotas públicas
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -49,4 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Clinics
     Route::apiResource('clinics', ClinicController::class);
+
+    // Health Plans
+    Route::apiResource('health-plans', HealthPlanController::class);
 });
