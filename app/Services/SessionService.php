@@ -7,15 +7,16 @@ use App\Models\Appointment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class SessionService
 {
     public function createSessionWithAppointments(array $data, int $userId): Session
     {
         DB::beginTransaction();
-
+        $sessionBuild = [];
         try {
-            $session = Session::create([
+            $sessionBuild = [
                 'patient_id' => $data['patient_id'],
                 'user_id' => $userId,
                 'title' => $data['title'] ?? null,
@@ -26,9 +27,17 @@ class SessionService
                 'start_date' => $data['start_date'],
                 'status' => 'Ativa',
                 'observations' => $data['observations'] ?? null,
-            ]);
+            ];
 
+            //  Add validation for category and health_plan_id to session
+            if (!empty($data['category']) || !empty($data['health_plan_id'])) {
+                $sessionBuild['category'] = $data['category'];
+                $sessionBuild['category'] = $data['health_plan_id'];
+            }
+
+            $session = Session::create($sessionBuild);
             $schedules = [];
+
             if (isset($data['schedules']) && is_array($data['schedules'])) {
                 foreach ($data['schedules'] as $schedule) {
                     $schedules[] = $session->schedules()->create([
@@ -62,6 +71,8 @@ class SessionService
                         'type' => $data['appointment_type'] ?? 'Fisioterapia',
                         'status' => 'Pendente',
                         'observations' => "Sessão: {$session->title}",
+                        'category' => $data['category'],
+                        'health_plan_id' => $data['health_plan_id'],
                     ]);
                 }
             }
@@ -71,6 +82,7 @@ class SessionService
 
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error($e);
             throw $e;
         }
     }
