@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
 
     // Appointments
+    Route::get('/appointments/by-payment', [AppointmentController::class, 'getByPayment']);
     Route::apiResource('appointments', AppointmentController::class);
     Route::post('/appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn']);
     Route::post('/appointments/{appointment}/check-out', [AppointmentController::class, 'checkOut']);

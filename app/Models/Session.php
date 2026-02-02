@@ -13,6 +13,7 @@ class Session extends Model
     protected $fillable = [
         'patient_id',
         'user_id',
+        'category',
         'title',
         'total_appointments',
         'completed_appointments',
@@ -22,6 +23,7 @@ class Session extends Model
         'end_date',
         'status',
         'observations',
+        'health_plan_id',
     ];
 
     protected $casts = [

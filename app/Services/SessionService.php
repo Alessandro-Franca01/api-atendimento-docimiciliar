@@ -32,7 +32,7 @@ class SessionService
             //  Add validation for category and health_plan_id to session
             if (!empty($data['category']) || !empty($data['health_plan_id'])) {
                 $sessionBuild['category'] = $data['category'];
-                $sessionBuild['category'] = $data['health_plan_id'];
+                $sessionBuild['health_plan_id'] = $data['health_plan_id'];
             }
 
             $session = Session::create($sessionBuild);

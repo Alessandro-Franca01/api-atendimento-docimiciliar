@@ -49,7 +49,7 @@ class SessionController extends Controller
             'start_date' => 'required|date|after_or_equal:today',
             'observations' => 'nullable|string',
             'appointment_type' => 'nullable|in:Fisioterapia,Pilates,Avaliação,Reabilitação,Outro',
-            'category' => 'nullable|in:private,clinic',
+            'category' => 'in:private,clinic',
             'health_plan_id' => 'nullable|exists:health_plans,id',
 
             'schedules' => 'required|array|min:1',
