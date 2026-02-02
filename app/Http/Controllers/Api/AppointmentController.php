@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
@@ -56,6 +57,10 @@ class AppointmentController extends Controller
                 'category' => 'nullable|in:private,clinic',
                 'room' => 'nullable|in:no_room,room1,room2,room3,room4',
                 'health_plan_id' => 'nullable|exists:health_plans,id',
+                // Payment Validation
+                'payment_amount' => 'nullable|numeric',
+                'payment_method' => 'nullable|string',
+                'is_paid' => 'nullable|boolean',
             ]);
         } elseif ($request->input('category') === 'private') {
             $validated = $request->validate([
@@ -67,12 +72,33 @@ class AppointmentController extends Controller
                 'status' => 'nullable|in:Pendente,Confirmado,Realizado,Cancelado,Faltou',
                 'observations' => 'nullable|string',
                 'category' => 'nullable|in:private,clinic',
+                // Payment Validation
+                'payment_amount' => 'nullable|numeric',
+                'payment_method' => 'nullable|string',
+                'is_paid' => 'nullable|boolean',
             ]);
         }
         
         $validated['user_id'] = $request->user()->id;
 
         $appointment = Appointment::create($validated);
+
+        // Handle Payment Creation
+        if ($request->has('payment_amount')) {
+            $paymentData = [
+                'user_id' => $request->user()->id, // Add user_id here
+                'patient_id' => $validated['patient_id'],
+                'appointment_id' => $appointment->id,
+                'session_id' => $validated['session_id'] ?? null,
+                'amount' => $request->input('payment_amount'),
+                'payment_date' => $validated['date'],
+                'payment_method' => $request->input('payment_method', 'Dinheiro'),
+                'status' => $request->boolean('is_paid') ? 'Pago' : 'Pendente',
+                'notes' => 'Gerado automaticamente via Agendamento',
+            ];
+
+            Payment::create($paymentData);
+        }
 
         return response()->json($appointment->load('patient'), 201);
     }
