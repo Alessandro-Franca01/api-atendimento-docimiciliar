@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
@@ -78,26 +80,38 @@ class AppointmentController extends Controller
                 'is_paid' => 'nullable|boolean',
             ]);
         }
-        
+
         $validated['user_id'] = $request->user()->id;
 
-        $appointment = Appointment::create($validated);
+        try {
+            DB::beginTransaction();
+            $appointment = Appointment::create($validated);
 
-        // Handle Payment Creation
-        if ($request->has('payment_amount')) {
-            $paymentData = [
-                'user_id' => $request->user()->id, // Add user_id here
-                'patient_id' => $validated['patient_id'],
-                'appointment_id' => $appointment->id,
-                'session_id' => $validated['session_id'] ?? null,
-                'amount' => $request->input('payment_amount'),
-                'payment_date' => $validated['date'],
-                'payment_method' => $request->input('payment_method', 'Dinheiro'),
-                'status' => $request->boolean('is_paid') ? 'Pago' : 'Pendente',
-                'notes' => 'Gerado automaticamente via Agendamento',
-            ];
+            // Handle Payment Creation
+            if ($request->has('payment_amount')) {
+                $paymentData = [
+                    'user_id' => $request->user()->id, // Add user_id here
+                    'patient_id' => $validated['patient_id'],
+                    'appointment_id' => $appointment->id,
+                    'session_id' => $validated['session_id'] ?? null,
+                    'amount' => $request->input('payment_amount'),
+                    'payment_date' => $validated['date'],
+                    'payment_method' => $request->input('payment_method', 'Dinheiro'),
+                    'status' => $request->boolean('is_paid') ? 'Pago' : 'Pendente',
+                    'notes' => 'Gerado automaticamente via Agendamento',
+                ];
 
-            Payment::create($paymentData);
+                Payment::create($paymentData);
+                DB::commit();
+            }
+        }catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e);
+
+            return response()->json([
+                'message' => 'Erro ao criar Atendimento.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
 
         return response()->json($appointment->load('patient'), 201);

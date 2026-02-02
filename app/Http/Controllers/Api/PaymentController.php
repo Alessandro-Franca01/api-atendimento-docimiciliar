@@ -28,7 +28,7 @@ class PaymentController extends Controller
 
         $totalCollected = $query->clone()->where('status', 'Pago')->sum('amount');
         $totalPending = $query->clone()->where('status', 'Pendente')->sum('amount');
-        
+
         $payments = $query->latest('payment_date')->paginate(10);
 
         $responseData = $payments->toArray();
@@ -46,7 +46,7 @@ class PaymentController extends Controller
             'session_id' => 'nullable|exists:sessions,id',
             'amount' => 'required|numeric|min:0',
             'payment_date' => 'required|date',
-            'payment_method' => 'required|in:Pix,Dinheiro,Cartao,Debito,Gratuito',
+            'payment_method' => 'required|in:Pix,Dinheiro,Cartao,Debito,Gratuito,Convenio',
             'status' => 'nullable|in:Pago,Pendente,Atrasado,Cancelado,Acao_Social',
             'due_date' => 'nullable|date',
             'notes' => 'nullable|string',
@@ -78,7 +78,8 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'amount' => 'sometimes|numeric|min:0',
             'payment_date' => 'sometimes|date',
-            'payment_method' => 'sometimes|in:Pix,Dinheiro,Cartao,Debito,Gratuito',
+            'amount' => 'sometimes|numeric|min:0',
+            'payment_method' => 'sometimes|in:Pix,Dinheiro,Cartao,Debito,Gratuito,Convenio',
             'status' => 'sometimes|in:Pago,Pendente,Atrasado,Cancelado,Acao_Social',
             'due_date' => 'sometimes|date',
             'notes' => 'nullable|string',
