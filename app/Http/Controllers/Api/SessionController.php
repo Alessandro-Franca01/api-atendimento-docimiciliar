@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Session;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use App\Services\SessionService;
 
@@ -59,6 +60,11 @@ class SessionController extends Controller
             'appointments' => 'sometimes|array',
             'appointments.*.date' => 'required_with:appointments|date',
             'appointments.*.time' => 'required_with:appointments|date_format:H:i',
+
+             // Payment Validation
+             'payment_amount' => 'nullable|numeric',
+             'payment_method' => 'nullable|string',
+             'is_paid' => 'nullable|boolean',
         ], [
             'schedules.required' => 'É necessário definir pelo menos um horário fixo.',
             'schedules.min' => 'É necessário definir pelo menos um horário fixo.',
@@ -71,6 +77,23 @@ class SessionController extends Controller
                 $validated,
                 $request->user()->id
             );
+
+            // Handle Payment Creation
+            if ($request->has('payment_amount')) {
+                $paymentData = [
+                    'user_id' => $request->user()->id,
+                    'patient_id' => $validated['patient_id'],
+                    'session_id' => $session->id,
+                    'appointment_id' => null, // Sessions usually have many appointments, so we link to session
+                    'amount' => $request->input('payment_amount'),
+                    'payment_date' => $validated['start_date'],
+                    'payment_method' => $request->input('payment_method', 'Dinheiro'),
+                    'status' => $request->boolean('is_paid') ? 'Pago' : 'Pendente',
+                    'notes' => 'Gerado automaticamente via Sessão',
+                ];
+
+                Payment::create($paymentData);
+            }
 
             return response()->json([
                 'message' => 'Sessão criada com sucesso!',
