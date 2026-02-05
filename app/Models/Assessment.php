@@ -66,6 +66,6 @@ class Assessment extends Model
 
     public function session()
     {
-        return $this->belongsTo(Session::class)->nullable();
+        return $this->belongsTo(Session::class);
     }
 }
