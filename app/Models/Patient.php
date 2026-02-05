@@ -57,6 +57,11 @@ class Patient extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function assessments()
+    {
+        return $this->hasMany(Assessment::class);
+    }
+
     public function getFinancialStatusAttribute()
     {
         $pendingPayments = $this->payments()

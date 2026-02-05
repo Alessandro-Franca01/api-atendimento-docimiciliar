@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\ClinicController;
 use App\Http\Controllers\Api\HealthPlanController;
+use App\Http\Controllers\Api\AssessmentController;
 
 // Rotas públicas
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -54,4 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Health Plans
     Route::apiResource('health-plans', HealthPlanController::class);
+
+    // Assessments
+    Route::apiResource('patients.assessments', AssessmentController::class);
 });
