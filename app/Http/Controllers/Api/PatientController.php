@@ -76,7 +76,10 @@ class PatientController extends Controller
             },
             'payments' => function ($query) {
                 $query->latest('payment_date')->limit(10);
-            }
+            },
+            'assessments' => function ($query) {
+                $query->latest()->limit(10);
+            },
         ]));
     }
 

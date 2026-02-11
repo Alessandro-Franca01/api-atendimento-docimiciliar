@@ -60,4 +60,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Clinic::class);
     }
+
+    public function assessments()
+    {
+        return $this->hasMany(Assessment::class);
+    }
 }
