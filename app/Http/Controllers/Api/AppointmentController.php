@@ -9,8 +9,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use App\Services\SessionService;
+
 class AppointmentController extends Controller
 {
+    protected $sessionService;
+
+    public function __construct(SessionService $sessionService)
+    {
+        $this->sessionService = $sessionService;
+    }
     public function index(Request $request)
     {
         $query = Appointment::where('user_id', $request->user()->id)
@@ -148,6 +156,10 @@ class AppointmentController extends Controller
 
         $appointment->update($validated);
 
+        if ($appointment->session_id) {
+            $this->sessionService->checkAndBillSession($appointment->session);
+        }
+
         return response()->json($appointment->load('patient'));
     }
 
@@ -187,7 +199,11 @@ class AppointmentController extends Controller
             'status' => 'Realizado',
         ]);
 
-        return response()->json($appointment->load(['patient', 'sessionSchedule']));
+        if ($appointment->session_id) {
+            $this->sessionService->checkAndBillSession($appointment->session);
+        }
+
+        return response()->json($appointment->load(['patient', 'session']));
     }
 
     public function execute(Request $request, Appointment $appointment)
@@ -200,11 +216,15 @@ class AppointmentController extends Controller
             'start_time' => 'required',
             'end_time' => 'required',
             'session_notes' => 'nullable|string',
-            'status' => 'required|in:Confirmado,Realizado',
+            'status' => 'required|in:Realizado',
         ]);
 
         $appointment->update($validated);
 
-        return response()->json($appointment->load(['patient', 'sessionSchedule']));
+        if ($appointment->session_id) {
+            $this->sessionService->checkAndBillSession($appointment->session);
+        }
+
+        return response()->json($appointment->load(['patient', 'session']));
     }
 }

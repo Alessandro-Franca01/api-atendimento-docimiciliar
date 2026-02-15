@@ -63,6 +63,11 @@ class Session extends Model
         return $this->hasMany(Assessment::class);
     }
 
+    public function healthPlan()
+    {
+        return $this->belongsTo(HealthPlan::class);
+    }
+
     public function getRemainingBalanceAttribute()
     {
         return $this->total_value - $this->paid_value;
