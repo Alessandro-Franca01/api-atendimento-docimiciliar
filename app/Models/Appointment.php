@@ -26,7 +26,6 @@ class Appointment extends Model
         'category',
         'health_plan_id',
         'room',
-        'treatment_objectives',
         'resources'
     ];
 

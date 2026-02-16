@@ -217,7 +217,6 @@ class AppointmentController extends Controller
             'end_time' => 'required',
             'session_notes' => 'nullable|string',
             'status' => 'required|in:Realizado',
-            'treatment_objectives' => 'nullable|string',
             'resources' => 'nullable|array',
         ]);
 
