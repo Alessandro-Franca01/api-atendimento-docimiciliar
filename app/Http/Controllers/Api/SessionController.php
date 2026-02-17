@@ -25,7 +25,10 @@ class SessionController extends Controller
     public function index(Request $request)
     {
         $query = Session::where('user_id', $request->user()->id)
-            ->with(['patient', 'schedules']);
+            ->with(['patient', 'schedules'])
+            ->withCount(['appointments as completed_appointments_count' => function ($query) {
+                $query->whereIn('status', ['Realizado', 'Faltou']);
+            }]);
 
         if ($request->has('patient_id')) {
             $query->where('patient_id', $request->patient_id);
@@ -35,7 +38,7 @@ class SessionController extends Controller
             $query->where('status', $request->status);
         }
 
-        $sessions = $query->latest()->paginate(15);
+        $sessions = $query->latest()->paginate(10);
 
         return response()->json($sessions);
     }

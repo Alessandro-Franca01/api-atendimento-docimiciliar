@@ -148,4 +148,68 @@ class SessionService
             $data['total_appointments']
         );
     }
+
+    public function checkAndBillSession(Session $session)
+    {
+        if ($session->category !== 'clinic') {
+            return;
+        }
+
+        // Check if already billed
+        if ($session->payments()->where('session_billing', true)->exists()) {
+            return;
+        }
+
+        $appointments = $session->appointments;
+        $countRealizado = $appointments->where('status', 'Realizado')->count();
+        $countFaltou = $appointments->where('status', 'Faltou')->count();
+        $countPending = $appointments->whereIn('status', ['Pendente', 'Confirmado'])->count();
+
+        $shouldBill = false;
+
+        // Rule 1: 3 Faltou
+        if ($countFaltou >= 3) {
+            $shouldBill = true;
+        }
+
+        // Rule 2: End of session (no pending appointments)
+        if ($countPending === 0) {
+            $shouldBill = true;
+        }
+
+        if ($shouldBill) {
+            $healthPlan = $session->healthPlan;
+            
+            if (!$healthPlan) {
+                Log::warning("Session {$session->id} to be billed has no health plan.");
+                return;
+            }
+
+            $amount = $countRealizado * $healthPlan->value;
+
+            try {
+                \App\Models\Payment::create([
+                    'patient_id' => $session->patient_id,
+                    'user_id' => $session->user_id,
+                    'session_id' => $session->id,
+                    'amount' => $amount,
+                    'payment_date' => now(),
+                    'payment_method' => 'Convenio',
+                    'status' => 'Pago',
+                    'notes' => 'Faturamento Sessão (Automático)',
+                    'session_billing' => true,
+                ]);
+
+                $session->update([
+                    'status' => 'Concluída',
+                ]);
+                
+                // Log for debugging
+                Log::info("Session {$session->id} billed automatically. Amount: {$amount}");
+
+            } catch (\Exception $e) {
+                Log::error("Error billing session {$session->id}: " . $e->getMessage());
+            }
+        }
+    }
 }

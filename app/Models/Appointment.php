@@ -26,11 +26,13 @@ class Appointment extends Model
         'category',
         'health_plan_id',
         'room',
+        'resources'
     ];
 
     protected $casts = [
         'date' => 'date',
         'attachments' => 'array',
+        'resources' => 'array'
     ];
 
     public function patient()

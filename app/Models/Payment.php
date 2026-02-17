@@ -21,6 +21,7 @@ class Payment extends Model
         'status',
         'due_date',
         'notes',
+        'session_billing',
     ];
 
     protected $casts = [
