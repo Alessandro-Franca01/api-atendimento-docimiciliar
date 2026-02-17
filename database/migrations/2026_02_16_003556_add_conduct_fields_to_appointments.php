@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::table('appointments', function (Blueprint $table) {
             $table->json('resources')->nullable();
+        });
     }
 
     /**
@@ -19,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('appointments', function (Blueprint $table) {
             $table->dropColumn(['resources']);
+        });
     }
 };
