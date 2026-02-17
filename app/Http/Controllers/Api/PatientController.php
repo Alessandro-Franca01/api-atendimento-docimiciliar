@@ -25,7 +25,8 @@ class PatientController extends Controller
             $query->where('status', $request->status);
         }
 
-        $patients = $query->latest()->paginate(7);
+        $perPage = $request->input('per_page', 10);
+        $patients = $query->latest()->paginate($perPage);
 
         return response()->json($patients);
     }

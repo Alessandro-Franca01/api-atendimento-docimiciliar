@@ -11,25 +11,27 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Payment::where('user_id', $request->user()->id)
-            ->with(['patient', 'appointment', 'session']);
+        $query = Payment::where('user_id', $request->user()->id);
 
-        if ($request->has('patient_id')) {
+        if ($request->has('patient_id') && $request->patient_id) {
             $query->where('patient_id', $request->patient_id);
-        }
-
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
         }
 
         if ($request->has('start_date') && $request->has('end_date')) {
             $query->whereBetween('payment_date', [$request->start_date, $request->end_date]);
         }
 
-        $totalCollected = $query->clone()->where('status', 'Pago')->sum('amount');
-        $totalPending = $query->clone()->where('status', 'Pendente')->sum('amount');
+        // Calcular totais baseados no filtro atual (paciente/data), mas sem o filtro de status
+        $totalCollected = (float) $query->clone()->where('status', 'Pago')->sum('amount');
+        $totalPending = (float) $query->clone()->where('status', 'Pendente')->sum('amount');
 
-        $payments = $query->latest('payment_date')->paginate(10);
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $payments = $query->with(['patient', 'appointment', 'session'])
+            ->latest('payment_date')
+            ->paginate(10);
 
         $responseData = $payments->toArray();
         $responseData['total_collected'] = $totalCollected;
