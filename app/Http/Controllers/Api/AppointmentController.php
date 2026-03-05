@@ -102,7 +102,7 @@ class AppointmentController extends Controller
                     'patient_id' => $validated['patient_id'],
                     'appointment_id' => $appointment->id,
                     'session_id' => $validated['session_id'] ?? null,
-                    'amount' => $request->input('payment_amount'),
+                    'amount' => $request->input('payment_amount') ?? 0,
                     'payment_date' => $validated['date'],
                     'payment_method' => $request->input('payment_method', 'Dinheiro'),
                     'status' => $request->boolean('is_paid') ? 'Pago' : 'Pendente',
