@@ -50,7 +50,7 @@ class SessionController extends Controller
             'title' => 'nullable|string|max:255',
             'total_appointments' => 'required|integer|min:1|max:100',
             'total_value' => 'required|numeric|min:0',
-            'start_date' => 'required|date|after_or_equal:today',
+            'start_date' => 'required|date',
             'observations' => 'nullable|string',
             'appointment_type' => 'nullable|in:Fisioterapia,Pilates,Avaliação,Reabilitação,Outro',
             'category' => 'in:private,clinic',
