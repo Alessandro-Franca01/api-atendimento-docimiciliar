@@ -26,7 +26,7 @@ return [
         'http://localhost:5173',
         'http://localhost:3001',
         'http://127.0.0.1:3001',
-        'https://vaquinhabob.site',
+        'https://gestorfisio.pro',
     ],
 
     'allowed_origins_patterns' => [],
