@@ -82,20 +82,33 @@ class SessionController extends Controller
             );
 
             // Handle Payment Creation
-            if ($request->has('payment_amount')) {
-                $paymentData = [
-                    'user_id' => $request->user()->id,
-                    'patient_id' => $validated['patient_id'],
-                    'session_id' => $session->id,
-                    'appointment_id' => null, // Sessions usually have many appointments, so we link to session
-                    'amount' => $request->input('payment_amount'),
-                    'payment_date' => $validated['start_date'],
-                    'payment_method' => $request->input('payment_method', 'Dinheiro'),
-                    'status' => $request->boolean('is_paid') ? 'Pago' : 'Pendente',
-                    'notes' => 'Gerado automaticamente via Sessão',
-                ];
+            if ($request->has('payment_amount') && $request->input('payment_amount') !== null) {
+                $totalAmount = (float) $request->input('payment_amount');
+                $appointmentsCount = $session->appointments->count();
 
-                Payment::create($paymentData);
+                if ($appointmentsCount > 0) {
+                    $baseAmount = floor(($totalAmount / $appointmentsCount) * 100) / 100;
+                    $remainder = round($totalAmount - ($baseAmount * $appointmentsCount), 2);
+
+                    foreach ($session->appointments as $index => $appointment) {
+                        $appointmentAmount = $baseAmount;
+                        if ($index === 0) {
+                            $appointmentAmount += $remainder;
+                        }
+
+                        Payment::create([
+                            'user_id' => $request->user()->id,
+                            'patient_id' => $validated['patient_id'],
+                            'session_id' => $session->id,
+                            'appointment_id' => $appointment->id,
+                            'amount' => $appointmentAmount,
+                            'payment_date' => $appointment->date, // Payment linked to appointment date
+                            'payment_method' => $request->input('payment_method', 'Dinheiro'),
+                            'status' => $request->boolean('is_paid') ? 'Pago' : 'Pendente',
+                            'notes' => 'Gerado automaticamente via Sessão',
+                        ]);
+                    }
+                }
             }
 
             return response()->json([
