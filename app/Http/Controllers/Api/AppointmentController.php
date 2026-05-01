@@ -228,4 +228,25 @@ class AppointmentController extends Controller
 
         return response()->json($appointment->load(['patient', 'session']));
     }
+
+    public function updateStatus(Request $request, Appointment $appointment)
+    {
+        if ($appointment->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Não autorizado'], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:Pendente,Confirmado,Realizado,Cancelado,Faltou',
+        ]);
+
+        $appointment->update([
+            'status' => $validated['status']
+        ]);
+
+        if ($appointment->session_id) {
+            $this->sessionService->checkAndBillSession($appointment->session);
+        }
+
+        return response()->json($appointment->load(['patient', 'session']));
+    }
 }
