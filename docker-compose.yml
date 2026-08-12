@@ -1,0 +1,42 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atendimento-api
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "composer install --no-interaction --prefer-dist &&
+             php artisan key:generate --force &&
+             php artisan migrate --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"
+    restart: unless-stopped
+
+  db:
+    image: mariadb:11
+    container_name: atendimento-db
+    environment:
+      - MARIADB_DATABASE=api_atendimento_domiciliar
+      - MARIADB_USER=laravel
+      - MARIADB_PASSWORD=c527f9624d0f7a758c049b4fdc4d9bcb
+      - MARIADB_ROOT_PASSWORD=17985951b5c0645a22baf0838eb17932
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  db_data:
