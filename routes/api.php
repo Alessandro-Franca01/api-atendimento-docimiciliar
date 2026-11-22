@@ -54,6 +54,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/sessions/{session}/cancel', [SessionController::class, 'cancel']);
     Route::get('/sessions/{session}/upcoming', [SessionController::class, 'upcomingAppointments']);
     Route::get('/sessions/{session}/statistics', [SessionController::class, 'statistics']);
+    Route::get('/sessions/{session}/report', [SessionController::class, 'report']);
+    Route::post('/sessions/{session}/report', [SessionController::class, 'generateReport']);
 
     // Payments
     Route::apiResource('payments', PaymentController::class);

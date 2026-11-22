@@ -24,9 +24,12 @@ class Session extends Model
         'status',
         'observations',
         'health_plan_id',
+        'report_comment',
+        'report_generated_at',
     ];
 
     protected $casts = [
+        'report_generated_at' => 'datetime',
         'start_date' => 'date',
         'end_date' => 'date',
         'total_value' => 'decimal:2',

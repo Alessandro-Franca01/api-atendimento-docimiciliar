@@ -268,6 +268,83 @@ class SessionController extends Controller
         return response()->json($appointments);
     }
 
+    /**
+     * Gera (ou regera) o relatório da sessão, guardando o comentário opcional.
+     * Só é permitido quando todos os atendimentos já foram concluídos.
+     */
+    public function generateReport(Request $request, Session $session)
+    {
+        if ($session->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Não autorizado'], 403);
+        }
+
+        $validated = $request->validate([
+            'comment' => 'nullable|string|max:5000',
+        ]);
+
+        $open = $session->appointments()
+            ->whereIn('status', ['Agendado', 'Pendente', 'Confirmado'])
+            ->count();
+
+        if ($open > 0 || $session->appointments()->count() === 0) {
+            return response()->json([
+                'message' => 'O relatório só pode ser gerado quando todos os atendimentos da sessão estiverem concluídos.',
+            ], 422);
+        }
+
+        $comment = isset($validated['comment']) ? trim($validated['comment']) : null;
+
+        $session->update([
+            'report_comment' => $comment !== '' ? $comment : null,
+            'report_generated_at' => now(),
+        ]);
+
+        return response()->json($this->buildReport($session));
+    }
+
+    /** Retorna o relatório já gerado. */
+    public function report(Request $request, Session $session)
+    {
+        if ($session->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Não autorizado'], 403);
+        }
+
+        if (!$session->report_generated_at) {
+            return response()->json(['message' => 'O relatório desta sessão ainda não foi gerado.'], 404);
+        }
+
+        return response()->json($this->buildReport($session));
+    }
+
+    private function buildReport(Session $session): array
+    {
+        $session->load([
+            'patient',
+            'schedules',
+            'healthPlan',
+            'appointments' => fn ($q) => $q->orderBy('date')->orderBy('scheduled_time'),
+            'payments',
+        ]);
+
+        $appointments = $session->appointments;
+        $payments = $session->payments;
+
+        return [
+            'session' => $session,
+            'comment' => $session->report_comment,
+            'generated_at' => $session->report_generated_at,
+            'summary' => [
+                'total' => $appointments->count(),
+                'realizado' => $appointments->where('status', 'Realizado')->count(),
+                'faltou' => $appointments->where('status', 'Faltou')->count(),
+                'cancelado' => $appointments->where('status', 'Cancelado')->count(),
+                'total_value' => (float) $session->total_value,
+                'paid_value' => (float) $payments->where('status', 'Pago')->sum('amount'),
+                'pending_value' => (float) $payments->whereIn('status', ['Pendente', 'Atrasado'])->sum('amount'),
+            ],
+        ];
+    }
+
     public function statistics(Request $request, Session $session)
     {
         if ($session->user_id !== $request->user()->id) {
