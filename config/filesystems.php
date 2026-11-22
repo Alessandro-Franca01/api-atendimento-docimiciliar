@@ -15,6 +15,9 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+    // Disco usado para anexos dos atendimentos (fotos). Em produção: MinIO/S3.
+    'attachments_disk' => env('ATTACHMENTS_DISK', 's3'),
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks

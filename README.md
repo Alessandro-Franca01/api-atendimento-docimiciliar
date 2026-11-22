@@ -424,6 +424,23 @@ axios.defaults.baseURL = 'http://localhost:8000/api';
 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 ```
 
+## 🗂️ Storage de arquivos (MinIO / S3)
+
+Fotos dos atendimentos ficam em um bucket **privado** S3-compatível (MinIO). O navegador nunca acessa o bucket: a leitura passa pela API, que valida o login e o dono do atendimento.
+
+```bash
+# 1. Defina no .env (veja .env.example): AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET, AWS_ENDPOINT
+# 2. Suba o MinIO (cria o bucket automaticamente)
+docker compose -f docker-compose.dev.yml up -d
+# 3. Rode as migrations
+php artisan migrate
+```
+
+- API S3: `http://127.0.0.1:9000` · Console web: `http://127.0.0.1:9001` (login = `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`)
+- Disco usado: `ATTACHMENTS_DISK` (padrão `s3`). Use `local` para testar sem MinIO.
+- Endpoints: `GET|POST /api/appointments/{id}/attachments`, `GET /api/attachments/{id}/download`, `DELETE /api/attachments/{id}`
+- Limites: imagens PNG/JPG/GIF/WEBP, 10MB cada, até 10 por envio (validado pelo conteúdo real do arquivo).
+
 ## 📄 Licença
 
 MIT

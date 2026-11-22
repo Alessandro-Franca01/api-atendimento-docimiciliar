@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\ClinicController;
 use App\Http\Controllers\Api\HealthPlanController;
 use App\Http\Controllers\Api\AssessmentController;
+use App\Http\Controllers\Api\AppointmentAttachmentController;
 
 // Rotas públicas
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -40,6 +41,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appointments/{appointment}/check-out', [AppointmentController::class, 'checkOut']);
     Route::post('/appointments/{appointment}/execute', [AppointmentController::class, 'execute']);
     Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
+
+    // Appointment attachments (fotos no storage S3/MinIO)
+    Route::get('/appointments/{appointment}/attachments', [AppointmentAttachmentController::class, 'index']);
+    Route::post('/appointments/{appointment}/attachments', [AppointmentAttachmentController::class, 'store']);
+    Route::get('/attachments/{attachment}/download', [AppointmentAttachmentController::class, 'download']);
+    Route::delete('/attachments/{attachment}', [AppointmentAttachmentController::class, 'destroy']);
 
     // Sessions
     Route::apiResource('sessions', SessionController::class);

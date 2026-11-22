@@ -1,0 +1,48 @@
+# Serviços auxiliares para desenvolvimento local (MinIO = S3 open source).
+#   docker compose -f docker-compose.dev.yml up -d
+#
+# Lê AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY e AWS_BUCKET do .env.
+# API S3:   http://127.0.0.1:9000
+# Console:  http://127.0.0.1:9001 (login = AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY)
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: fisio-gestor-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:?defina AWS_ACCESS_KEY_ID no .env}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:?defina AWS_SECRET_ACCESS_KEY no .env}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Cria o bucket (privado) na primeira subida e encerra.
+  minio-setup:
+    image: minio/mc:latest
+    container_name: fisio-gestor-minio-setup
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
+      BUCKET: ${AWS_BUCKET:-fisio-gestor}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
+      mc mb --ignore-existing local/$$BUCKET &&
+      mc anonymous set none local/$$BUCKET
+      "
+    restart: "no"
+
+volumes:
+  minio_data:
