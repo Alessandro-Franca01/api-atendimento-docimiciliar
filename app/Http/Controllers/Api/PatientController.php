@@ -10,8 +10,18 @@ class PatientController extends Controller
 {
     public function index(Request $request)
     {
+        $open = ['Pendente', 'Atrasado'];
+
+        // Listagem leve: agrega o financeiro no SQL em vez de carregar
+        // todas as sessões e pagamentos de cada paciente.
         $query = Patient::where('user_id', $request->user()->id)
-            ->with(['addresses', 'sessions', 'payments']);
+            ->with('addresses')
+            ->withSum(['payments as total_to_pay_sum' => fn ($q) => $q->whereIn('status', $open)], 'amount')
+            ->withSum(['payments as total_paid_sum' => fn ($q) => $q->where('status', 'Pago')], 'amount')
+            ->withCount([
+                'payments as pending_payments_count' => fn ($q) => $q->whereIn('status', $open),
+                'payments as overdue_payments_count' => fn ($q) => $q->where('status', 'Atrasado'),
+            ]);
 
         if ($request->has('search')) {
             $query->where(function ($q) use ($request) {
@@ -25,8 +35,17 @@ class PatientController extends Controller
             $query->where('status', $request->status);
         }
 
-        $perPage = $request->input('per_page', 10);
-        $patients = $query->latest()->paginate($perPage);
+        $perPage = min((int) $request->input('per_page', 10), 100);
+        $patients = $query->latest()->paginate($perPage)->through(function (Patient $p) {
+            $data = $p->toArray();
+            $pending = $data['pending_payments_count'] ?? 0;
+            $overdue = $data['overdue_payments_count'] ?? 0;
+            $data['total_to_pay'] = (float) ($data['total_to_pay_sum'] ?? 0);
+            $data['total_paid'] = (float) ($data['total_paid_sum'] ?? 0);
+            $data['financial_status'] = $pending === 0 ? 'Em dia' : ($overdue > 0 ? 'Atrasado' : 'Pendente');
+            unset($data['total_to_pay_sum'], $data['total_paid_sum'], $data['pending_payments_count'], $data['overdue_payments_count']);
+            return $data;
+        });
 
         return response()->json($patients);
     }
